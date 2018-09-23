@@ -3,12 +3,10 @@ from numpy import sqrt
 import scipy.stats as scs
 
 
-def z_test(ctr_old, ctr_new, nobs_old, nobs_new,
+def sig_test(ctr_old, ctr_new, nobs_old, nobs_new,
            effect_size=0., two_tailed=True, alpha=.05):
-    """Perform z-test to compare two proprtions (e.g., click through rates (ctr)).
+    """This z-test compares two proportions (click trough rates for two comparison landing pages)
 
-        Note: if you set two_tailed=False, z_test assumes H_A is that the effect is
-        non-negative, so the p-value is computed based on the weight in the upper tail.
 
         Arguments:
             ctr_old (float):    baseline proportion (ctr)
@@ -18,17 +16,16 @@ def z_test(ctr_old, ctr_new, nobs_old, nobs_new,
             effect_size (float):    size of effect
             two_tailed (bool):  True to use two-tailed test; False to use one-sided test
                                 where alternative hypothesis if that effect_size is non-negative
-            alpha (float):      significance level
+            alpha (float):      significance threshold
 
         Returns:
-            z-score, p-value, and whether to reject the null hypothesis
+            z-score, p-value, and whether to reject the null hypothesis (bool)
     """
-    conversion = (ctr_old * nobs_old + ctr_new * nobs_new) / \
-                 (nobs_old + nobs_new)
+    conversion = (ctr_old * nobs_old + ctr_new * nobs_new) / (nobs_old + nobs_new)
 
-    se = sqrt(conversion * (1 - conversion) * (1 / nobs_old + 1 / nobs_new))
+    standard_error = sqrt(conversion * (1 - conversion) * (1 / nobs_old + 1 / nobs_new))
 
-    z_score = (ctr_new - ctr_old - effect_size) / se
+    z_score = (ctr_new - ctr_old - effect_size) / standard_error
 
     if two_tailed:
         p_val = (1 - scs.norm.cdf(abs(z_score))) * 2
